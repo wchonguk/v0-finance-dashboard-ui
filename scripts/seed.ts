@@ -17,25 +17,25 @@ async function main() {
   // Create categories
   const categories = await Promise.all([
     prisma.category.create({
-      data: { name: "Food & Dining", color: "#ef4444", icon: "utensils" },
+      data: { name: "Food & Dining", color: "#ef4444" },
     }),
     prisma.category.create({
-      data: { name: "Transportation", color: "#3b82f6", icon: "car" },
+      data: { name: "Transportation", color: "#3b82f6" },
     }),
     prisma.category.create({
-      data: { name: "Shopping", color: "#8b5cf6", icon: "shopping-bag" },
+      data: { name: "Shopping", color: "#8b5cf6" },
     }),
     prisma.category.create({
-      data: { name: "Entertainment", color: "#f59e0b", icon: "film" },
+      data: { name: "Entertainment", color: "#f59e0b" },
     }),
     prisma.category.create({
-      data: { name: "Bills & Utilities", color: "#6b7280", icon: "file-text" },
+      data: { name: "Bills & Utilities", color: "#6b7280" },
     }),
     prisma.category.create({
-      data: { name: "Healthcare", color: "#10b981", icon: "heart" },
+      data: { name: "Healthcare", color: "#10b981" },
     }),
     prisma.category.create({
-      data: { name: "Income", color: "#22c55e", icon: "dollar-sign" },
+      data: { name: "Income", color: "#22c55e" },
     }),
   ])
 
