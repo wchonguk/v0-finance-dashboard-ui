@@ -1,6 +1,6 @@
 import { PrismaNeon } from "@prisma/adapter-neon"
 import { neon } from "@neondatabase/serverless"
-import { PrismaClient } from "@/lib/generated/prisma"
+import { PrismaClient } from "../lib/generated/prisma/client"
 
 const sql = neon(process.env.DATABASE_URL!)
 const adapter = new PrismaNeon(sql)

@@ -27,15 +27,53 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { TransactionForm } from './transaction-form'
-import { getCategoryById, formatCurrency, formatDate } from '@/lib/mock-data'
-import type { Transaction } from '@/lib/types'
 import { cn } from '@/lib/utils'
+
+interface Category {
+  id: string
+  name: string
+  color: string
+}
+
+interface Transaction {
+  id: string
+  description: string
+  amount: number
+  type: string
+  date: Date
+  categoryId: string
+  category: Category | null
+}
 
 interface TransactionsTableProps {
   transactions: Transaction[]
+  categories: Category[]
+  onEdit: (id: string, data: {
+    description?: string
+    amount?: number
+    type?: 'income' | 'expense'
+    date?: Date
+    categoryId?: string
+  }) => void
+  onDelete: (id: string) => void
 }
 
-export function TransactionsTable({ transactions }: TransactionsTableProps) {
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(amount)
+}
+
+function formatDate(date: Date) {
+  return new Date(date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+export function TransactionsTable({ transactions, categories, onEdit, onDelete }: TransactionsTableProps) {
   const [editTransaction, setEditTransaction] = useState<Transaction | null>(null)
 
   const handleEdit = (transaction: Transaction) => {
@@ -43,14 +81,20 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
   }
 
   const handleDelete = (id: string) => {
-    // In a real app, this would call an API
-    console.log('Delete transaction:', id)
+    onDelete(id)
   }
 
-  const handleUpdate = (data: Omit<Transaction, 'id'>) => {
-    // In a real app, this would call an API
-    console.log('Update transaction:', { id: editTransaction?.id, ...data })
-    setEditTransaction(null)
+  const handleUpdate = (data: {
+    description: string
+    amount: number
+    type: 'income' | 'expense'
+    date: Date
+    categoryId: string
+  }) => {
+    if (editTransaction) {
+      onEdit(editTransaction.id, data)
+      setEditTransaction(null)
+    }
   }
 
   if (transactions.length === 0) {
@@ -82,8 +126,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
           </TableHeader>
           <TableBody>
             {transactions.map((transaction) => {
-              const category = getCategoryById(transaction.categoryId)
-              const isIncome = transaction.amount > 0
+              const isIncome = transaction.type === 'income'
 
               return (
                 <TableRow key={transaction.id}>
@@ -94,15 +137,17 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                     {transaction.description}
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="secondary"
-                      style={{
-                        backgroundColor: `${category?.color}20`,
-                        color: category?.color,
-                      }}
-                    >
-                      {category?.name}
-                    </Badge>
+                    {transaction.category && (
+                      <Badge
+                        variant="secondary"
+                        style={{
+                          backgroundColor: `${transaction.category.color}20`,
+                          color: transaction.category.color,
+                        }}
+                      >
+                        {transaction.category.name}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell
                     className={cn(
@@ -110,7 +155,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                       isIncome ? 'text-success' : ''
                     )}
                   >
-                    {isIncome ? '+' : ''}
+                    {isIncome ? '+' : '-'}
                     {formatCurrency(transaction.amount)}
                   </TableCell>
                   <TableCell>
@@ -154,6 +199,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
           {editTransaction && (
             <TransactionForm
               transaction={editTransaction}
+              categories={categories}
               onSubmit={handleUpdate}
               onCancel={() => setEditTransaction(null)}
             />

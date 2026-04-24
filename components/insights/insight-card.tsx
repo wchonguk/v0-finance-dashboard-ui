@@ -2,66 +2,71 @@ import {
   TrendingUp,
   TrendingDown,
   AlertTriangle,
-  CreditCard,
-  Utensils,
-  PiggyBank,
+  Sparkles,
+  Info,
 } from 'lucide-react'
 
 import { Card, CardContent } from '@/components/ui/card'
-import type { InsightCard as InsightCardType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  'utensils': Utensils,
-  'credit-card': CreditCard,
-  'piggy-bank': PiggyBank,
-  'alert-triangle': AlertTriangle,
-  'trending-up': TrendingUp,
-  'trending-down': TrendingDown,
+interface Insight {
+  id: string
+  type: 'positive' | 'negative' | 'warning' | 'info'
+  title: string
+  description: string
 }
 
 interface InsightCardProps {
-  insight: InsightCardType
+  insight: Insight
 }
 
 export function InsightCard({ insight }: InsightCardProps) {
-  const IconComponent = iconMap[insight.icon] || AlertTriangle
-
-  const getTypeStyles = () => {
+  const getTypeConfig = () => {
     switch (insight.type) {
       case 'positive':
         return {
+          Icon: TrendingUp,
           bgColor: 'bg-success/10',
           iconColor: 'text-success',
           borderColor: 'border-success/20',
         }
       case 'negative':
         return {
+          Icon: TrendingDown,
           bgColor: 'bg-destructive/10',
           iconColor: 'text-destructive',
           borderColor: 'border-destructive/20',
         }
-      default:
+      case 'warning':
         return {
+          Icon: AlertTriangle,
           bgColor: 'bg-warning/10',
           iconColor: 'text-warning',
           borderColor: 'border-warning/20',
         }
+      case 'info':
+      default:
+        return {
+          Icon: Info,
+          bgColor: 'bg-primary/10',
+          iconColor: 'text-primary',
+          borderColor: 'border-primary/20',
+        }
     }
   }
 
-  const styles = getTypeStyles()
+  const { Icon, bgColor, iconColor, borderColor } = getTypeConfig()
 
   return (
-    <Card className={cn('border-l-4', styles.borderColor)}>
+    <Card className={cn('border-l-4', borderColor)}>
       <CardContent className="flex items-start gap-4 p-4">
         <div
           className={cn(
             'size-10 rounded-full flex items-center justify-center shrink-0',
-            styles.bgColor
+            bgColor
           )}
         >
-          <IconComponent className={cn('size-5', styles.iconColor)} />
+          <Icon className={cn('size-5', iconColor)} />
         </div>
         <div>
           <h3 className="font-medium">{insight.title}</h3>
