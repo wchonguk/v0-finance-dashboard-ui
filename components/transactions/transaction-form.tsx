@@ -13,41 +13,64 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { categories } from '@/lib/mock-data'
-import type { Transaction } from '@/lib/types'
+
+interface Category {
+  id: string
+  name: string
+  color: string
+}
+
+interface Transaction {
+  id: string
+  description: string
+  amount: number
+  type: string
+  date: Date
+  categoryId: string
+}
 
 interface TransactionFormProps {
   transaction?: Transaction
-  onSubmit: (data: Omit<Transaction, 'id'>) => void
+  categories: Category[]
+  onSubmit: (data: {
+    description: string
+    amount: number
+    type: 'income' | 'expense'
+    date: Date
+    categoryId: string
+  }) => void
   onCancel: () => void
 }
 
 export function TransactionForm({
   transaction,
+  categories,
   onSubmit,
   onCancel,
 }: TransactionFormProps) {
   const [amount, setAmount] = useState(
-    transaction ? Math.abs(transaction.amount).toString() : ''
+    transaction ? transaction.amount.toString() : ''
   )
   const [type, setType] = useState<'expense' | 'income'>(
-    transaction && transaction.amount > 0 ? 'income' : 'expense'
+    (transaction?.type as 'income' | 'expense') ?? 'expense'
   )
   const [description, setDescription] = useState(transaction?.description ?? '')
   const [categoryId, setCategoryId] = useState(transaction?.categoryId ?? '')
   const [date, setDate] = useState(
-    transaction?.date ?? new Date().toISOString().split('T')[0]
+    transaction?.date
+      ? new Date(transaction.date).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0]
   )
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const parsedAmount = parseFloat(amount)
-    const finalAmount = type === 'expense' ? -parsedAmount : parsedAmount
 
     onSubmit({
-      date,
+      date: new Date(date),
       description,
-      amount: finalAmount,
+      amount: parsedAmount,
+      type,
       categoryId,
     })
   }

@@ -5,7 +5,6 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import type { Category } from '@/lib/types'
 
 const colorOptions = [
   '#22c55e', // Green
@@ -20,9 +19,15 @@ const colorOptions = [
   '#8b5cf6', // Violet
 ]
 
+interface Category {
+  id: string
+  name: string
+  color: string
+}
+
 interface CategoryFormProps {
   category?: Category
-  onSubmit: (data: Omit<Category, 'id'>) => void
+  onSubmit: (data: { name: string; color: string }) => void
   onCancel: () => void
 }
 

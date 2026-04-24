@@ -11,9 +11,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { getCategoryById, formatCurrency } from '@/lib/mock-data'
-import type { Budget } from '@/lib/types'
 import { cn } from '@/lib/utils'
+
+interface Category {
+  id: string
+  name: string
+  color: string
+}
+
+interface Budget {
+  id: string
+  amount: number
+  period: string
+  categoryId: string
+  category: Category
+  spent: number
+}
 
 interface BudgetCardProps {
   budget: Budget
@@ -21,10 +34,16 @@ interface BudgetCardProps {
   onDelete: (id: string) => void
 }
 
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(amount)
+}
+
 export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
-  const category = getCategoryById(budget.categoryId)
-  const percentUsed = (budget.spent / budget.monthlyLimit) * 100
-  const remaining = budget.monthlyLimit - budget.spent
+  const percentUsed = (budget.spent / budget.amount) * 100
+  const remaining = budget.amount - budget.spent
 
   const getProgressColor = () => {
     if (percentUsed >= 90) return 'bg-destructive'
@@ -45,15 +64,15 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         <div className="flex items-center gap-3">
           <div
             className="size-10 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: `${category?.color}20` }}
+            style={{ backgroundColor: `${budget.category.color}20` }}
           >
             <div
               className="size-4 rounded-full"
-              style={{ backgroundColor: category?.color }}
+              style={{ backgroundColor: budget.category.color }}
             />
           </div>
           <div>
-            <h3 className="font-semibold">{category?.name}</h3>
+            <h3 className="font-semibold">{budget.category.name}</h3>
             <p
               className={cn(
                 'text-xs',
@@ -91,7 +110,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Spent</span>
             <span className="font-medium">
-              {formatCurrency(budget.spent)} of {formatCurrency(budget.monthlyLimit)}
+              {formatCurrency(budget.spent)} of {formatCurrency(budget.amount)}
             </span>
           </div>
           <div className="relative">
